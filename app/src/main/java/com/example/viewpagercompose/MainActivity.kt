@@ -8,14 +8,18 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.viewpagercompose.ui.theme.ViewPagerComposeTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.VerticalPager
+import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import java.util.*
+import kotlin.concurrent.schedule
 
 class MainActivity : ComponentActivity() {
     val items = listOf<ItemData>(
@@ -55,6 +59,33 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     color = MaterialTheme.colors.background
                 ) {
+                    val loading = remember {
+                        mutableStateOf(true)
+                    }
+                    val pagerstate = rememberPagerState(pageCount = items.size)
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Timer().schedule(1000){
+                            loading.value=false
+                        }
+                        HorizontalPager(
+                            state = pagerstate,
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .weight(1f)
+                        ) {
+                            PagerContent(itemData = items[it])
+                        }
+                        CustomCircularProgress(indicatorValue =if (loading.value)360 else pagerstate.currentPage.inc() * (360 / items.size))
+                    }
+                }
+                /* Vertical
+                {
                     val state = rememberPagerState(pageCount = items.size)
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -70,6 +101,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+                 */
                 /* Horizontal
                     {
                         val state = rememberPagerState(pageCount = items.size)
